@@ -7,7 +7,7 @@
 #include "esp_log.h"
 
 #include "datapoints.h"
-#include "wifi_logger_client.h"
+#include "solarman_stick_client.h"
 
 // These credentials come from the Tuya IoT platform project created for the device.
 #define TUYA_PRODUCT_ID     "your_product_id"
@@ -15,9 +15,11 @@
 #define TUYA_AUTH_KEY       "your_auth_key"
 #define TUYA_FW_VERSION     "1.0.0"
 
-// Wi-Fi logger configuration.
-#define LOGGER_BASE_URL     "http://192.168.1.50"  // change to the IP/hostname of the Deye Wi-Fi logger
-#define LOGGER_AUTH_TOKEN   ""                     // optional bearer token if your logger uses one
+// Solarman stick logger configuration.
+#define LOGGER_HOST         "192.168.1.50"  // IP of the Solarman stick logger
+#define LOGGER_PORT         8899             // TCP port used by the stick
+#define LOGGER_STICK_SN     12345678         // optional stick serial number (informational only)
+#define LOGGER_MODBUS_ID    1                // inverter Modbus unit ID behind the stick
 
 static const char *TAG = "app";
 
@@ -51,7 +53,7 @@ static void logger_poll_task(void *pv) {
     inverter_sample_t sample;
 
     while (1) {
-        if (wifi_logger_client_fetch(&sample)) {
+        if (solarman_stick_client_fetch(&sample)) {
             ESP_LOGI(TAG, "Grid %.1f V %.1f Hz, AC %.0f W, PV1 %.1f/%.1f, PV2 %.1f/%.1f",
                      sample.grid_voltage, sample.grid_frequency, sample.active_power,
                      sample.pv1_voltage, sample.pv1_current,
@@ -68,8 +70,8 @@ static void logger_poll_task(void *pv) {
 void app_main(void) {
     ESP_LOGI(TAG, "Starting Tuya + Deye bridge");
 
-    if (!wifi_logger_client_init(LOGGER_BASE_URL, LOGGER_AUTH_TOKEN)) {
-        ESP_LOGE(TAG, "Logger init failed, rebooting");
+    if (!solarman_stick_client_init(LOGGER_HOST, LOGGER_PORT, LOGGER_STICK_SN, LOGGER_MODBUS_ID)) {
+        ESP_LOGE(TAG, "Solarman logger init failed, rebooting");
         esp_restart();
     }
 
