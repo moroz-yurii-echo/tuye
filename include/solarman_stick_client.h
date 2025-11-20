@@ -1,5 +1,5 @@
-#ifndef WIFI_LOGGER_CLIENT_H
-#define WIFI_LOGGER_CLIENT_H
+#ifndef SOLARMAN_STICK_CLIENT_H
+#define SOLARMAN_STICK_CLIENT_H
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -24,14 +24,14 @@ typedef struct {
     int logger_rssi;
 } inverter_sample_t;
 
-// Initializes the HTTP client used to query the Wi-Fi logger.
-bool wifi_logger_client_init(const char *base_url, const char *auth_token);
+// Initializes the TCP client used to query the Solarman stick logger.
+bool solarman_stick_client_init(const char *host, uint16_t port, uint32_t stick_sn, uint8_t modbus_id);
 
 // Queries the logger and populates the inverter_sample_t struct.
-bool wifi_logger_client_fetch(inverter_sample_t *out_sample);
+bool solarman_stick_client_fetch(inverter_sample_t *out_sample);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif // WIFI_LOGGER_CLIENT_H
+#endif // SOLARMAN_STICK_CLIENT_H
